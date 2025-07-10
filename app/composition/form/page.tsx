@@ -2,17 +2,16 @@
 import { useState, useEffect } from 'react';
 import template from "@/app/components/template";
 import { generatePatientPayload, PatientFormData } from "@/app/payloads/patient.payload";
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Home() {
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [ehrId, setEhrId] = useState<string | null>(null);
   const [compositionId, setCompositionId] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  
+  console.log('loading', loading);
+ 
   useEffect(() => {
     // Get the EHR ID from localStorage if available
     const storedEhrId = localStorage.getItem('etag');
