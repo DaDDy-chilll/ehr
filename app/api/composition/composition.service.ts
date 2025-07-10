@@ -73,8 +73,8 @@ export class CompositionService {
         }
     }
 
-    async updateComposition(id: string, payload: string) {}
+    // async updateComposition(id: string, payload: string) {}
 
-    async deleteComposition(id: string) {}
+    // async deleteComposition(id: string) {}
 }   
 

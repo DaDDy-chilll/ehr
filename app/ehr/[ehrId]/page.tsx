@@ -1,6 +1,5 @@
 "use client";
 import Link from 'next/link';
-import router from 'next/router';
 import React, { useEffect, useState } from 'react';
 
 interface EHRData {

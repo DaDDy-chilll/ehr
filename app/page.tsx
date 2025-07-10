@@ -41,8 +41,8 @@ export default function Home() {
       } else {
         setError(result.error || "Failed to fetch templates");
       }
-    } catch (err) {
-      setError("Error fetching templates");
+    } catch (error) {
+      setError(error?.toString() || "Error fetching templates");
     } finally {
       setLoading(false);
     }
@@ -108,8 +108,8 @@ export default function Home() {
       } else {
         setUploadStatus(result.error || "Failed to add template");
       }
-    } catch (err) {
-      setUploadStatus("Error adding template");
+    } catch (error) {
+      setUploadStatus(error?.toString() || "Error adding template");
     } finally {
       setLoading(false);
     }
