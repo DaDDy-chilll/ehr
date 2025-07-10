@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <h1 class="h3">Patient Template</h1>
+        <input type="hidden" name="template_id" value="Patient Template" />
+        <div class="EVENT_CONTEXT form-item" data-tpath="/context">
+          <div class="CLUSTER form-item" data-tpath="/context/other_context[at0001]/items[at0002]">
+            <label class="">ARCHETYPE_SLOT is not supported yet, found at /context/other_context[at0001]/items[at0002]</label>
+          </div>
+        </div>
+        <div class="EVALUATION form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]">
+          <label class="">Blood group</label>
+          <div class="ELEMENT form-group form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/data[at0002]/items[at0003]">
+            <label class="">ABO blood group</label>
+            <div class="DV_CODED_TEXT form-group form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/data[at0002]/items[at0003]/value">
+              <select class="DV_CODED_TEXT form-control" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/data[at0002]/items[at0003]/value/defining_code" data-archetype="openEHR-EHR-EVALUATION.blood_group.v0" data-path="/data[at0002]/items[at0003]/value/defining_code">
+                <option value=""></option>
+                <option value="at0007">O</option>
+                <option value="at0008">A</option>
+                <option value="at0009">B</option>
+                <option value="at0010">AB</option>
+              </select>
+            </div>
+          </div>
+          <div class="ELEMENT form-group form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/data[at0002]/items[at0004]">
+            <label class="">Rh(D) antigen status</label>
+            <div class="DV_CODED_TEXT form-group form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/data[at0002]/items[at0004]/value">
+              <select class="DV_CODED_TEXT form-control" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/data[at0002]/items[at0004]/value/defining_code" data-archetype="openEHR-EHR-EVALUATION.blood_group.v0" data-path="/data[at0002]/items[at0004]/value/defining_code">
+                <option value=""></option>
+                <option value="at0011">Positive</option>
+                <option value="at0012">Negative</option>
+              </select>
+            </div>
+          </div>
+          <div class="ELEMENT form-group form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/protocol[at0001]/items[at0005]">
+            <label class="">Last updated</label>
+            <div class="DV_DATE_TIME form-group form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/protocol[at0001]/items[at0005]/value">
+              <input class="DV_DATE_TIME form-control" type="datetime-local" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/protocol[at0001]/items[at0005]/value" data-archetype="openEHR-EHR-EVALUATION.blood_group.v0" data-path="/protocol[at0001]/items[at0005]/value" />
+            </div>
+          </div>
+          <div class="CLUSTER form-item" data-tpath="/content[archetype_id=openEHR-EHR-EVALUATION.blood_group.v0]/protocol[at0001]/items[at0006]">
+            <label class="">ARCHETYPE_SLOT is not supported yet, found at /protocol[at0001]/items[at0006]</label>
+          </div>
+        </div>
+      </form>
+</body>
+</html>

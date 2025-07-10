@@ -1,0 +1,47 @@
+import { NextPage } from "next";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { getComposition } from "@/app/api/composition";
+
+const DetailPage: NextPage = () => {
+  const [composition, setComposition] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { ehrId, compositionId } = router.query;
+
+  useEffect(() => {
+    const fetchComposition = async () => {
+      if (ehrId && compositionId) {
+        try {
+          const result = await getComposition(ehrId as string, compositionId as string);
+          if (result.ok) {
+            setComposition(result.data);
+          } else {
+            setError(result.error || "Failed to fetch composition data");
+          }
+        } catch (error) {
+          console.error("Error fetching composition:", error);
+          setError("Failed to fetch composition data. Please try again.");
+        }
+      }
+    };
+    fetchComposition();
+  }, [ehrId, compositionId]);
+
+  return (
+    <div>
+      {composition ? (
+        <div>
+          <h1>{composition.name?.value}</h1>
+          <pre>{JSON.stringify(composition, null, 2)}</pre>
+        </div>
+      ) : (
+        <div>
+          <h1>{error || "Loading..."}</h1>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DetailPage;

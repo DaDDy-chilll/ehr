@@ -1,103 +1,256 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import {Modal} from "@/app/components/Modal";
+interface Template {
+  templateId: string;
+  name: string;
+}
+
+interface TemplateApiResponse {
+  template_id: string;
+  name?: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [templateName, setTemplateName] = useState<string>("");
+  const [xmlFile, setXmlFile] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+  const fetchTemplates = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/definition");
+      const result = await response.json();
+
+      if (result.ok) {
+        // Transform the data to the format we need
+        const templateData = result.data.map((template: TemplateApiResponse) => ({
+          templateId: template.template_id,
+          name: template.name || template.template_id,
+        }));
+        setTemplates(templateData);
+      } else {
+        setError(result.error || "Failed to fetch templates");
+      }
+    } catch (err) {
+      setError("Error fetching templates");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setTemplateName("");
+    setXmlFile(null);
+    setUploadStatus("");
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type === "text/xml" || file.name.endsWith(".xml") || file.name.endsWith(".opt")) {
+        setXmlFile(file);
+        setUploadStatus(`File selected: ${file.name}`);
+      } else {
+        setXmlFile(null);
+        setUploadStatus("Please select a valid XML or OPT file");
+      }
+    }
+  };
+
+  const addTemplate = async () => {
+    if (!templateName.trim()) {
+      setUploadStatus("Please enter a template name");
+      return;
+    }
+    console.log('xmlFile', xmlFile);
+
+
+    if (!xmlFile || (!xmlFile.name.endsWith(".xml") && !xmlFile.name.endsWith(".opt")) ) {
+      setUploadStatus("Please select an XML or OPT file");
+      return;
+    }
+    
+
+    setLoading(true);
+    setUploadStatus("Uploading...");
+
+    try {
+      const formData = new FormData();
+      formData.append("name", templateName);
+      formData.append("xmlFile", xmlFile);
+
+      const response = await fetch("/api/definition", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.ok) {
+        setUploadStatus("Template added successfully!");
+        closeModal();
+        fetchTemplates();
+      } else {
+        setUploadStatus(result.error || "Failed to add template");
+      }
+    } catch (err) {
+      setUploadStatus("Error adding template");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+
+  return (
+    <div className="flex justify-center items-center min-h-screen p-4">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Template List</h1>
+          {templates.length <= 0 ? (
+            <button
+              onClick={fetchTemplates}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                "Refresh"
+              )}
+            </button>
+          ):(
+            <button
+            onClick={openModal}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+</svg>
+
+                Add Your Template
+              
+            
+          </button>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {loading && templates.length === 0 ? (
+          <div className="text-center py-4">Loading templates...</div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-4">{error}</div>
+        ) : templates.length === 0 ? (
+          <div className="text-center text-gray-500 py-4">
+            No templates found
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {templates.map((template) => (
+              <li key={template.templateId}>
+                <Link href={`/template/${template.templateId}`}>
+                  <div className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors duration-200 border border-gray-200">
+                    {template.name}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title="Add Template"
+        content={
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="templateName" className="block text-sm font-medium text-gray-700 mb-1">
+                Template Name
+              </label>
+              <input
+                id="templateName"
+                type="text"
+                placeholder="Enter template name"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="xmlFile" className="block text-sm font-medium text-gray-700 mb-1">
+                XML File (or) .Opt File
+              </label>
+              <input
+                id="xmlFile"
+                type="file"
+                ref={fileInputRef}
+                accept=".xml,text/xml,.opt,text/opt"
+                onChange={handleFileChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            {uploadStatus && (
+              <div className={`text-sm ${uploadStatus.includes("Error") || uploadStatus.includes("Please") ? "text-red-500" : "text-green-500"}`}>
+                {uploadStatus}
+              </div>
+            )}
+          </div>
+        }
+        actions={[
+          {
+            label: "Cancel",
+            onClick: closeModal,
+          },
+          {
+            label: "Add",
+            onClick: addTemplate,
+          },
+        ]}
+      />
     </div>
   );
 }
